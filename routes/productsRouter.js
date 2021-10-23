@@ -5,6 +5,7 @@ const router = express.Router();
 
 //esto viene después de la ruta principal
 
+//READ PRODUCTS
 router.get('/', (req, res) => {
   const products = [];
   const { size } = req.query;
@@ -19,16 +20,42 @@ router.get('/', (req, res) => {
   res.json(products);
 });
 
-router.get('/filter', (req, res) => {
-  res.send('Yo soy un filter');
-});
-
+//READ PRODUCT
 router.get('/:id', (req, res) => {
   const { id } = req.params;
   res.json({
     id,
     name: 'Product 2',
     price: 2000,
+  });
+});
+
+//CREATE PRODUCT
+router.post('/', (req, res) => {
+  const body = req.body;
+  res.json({
+    message: 'product created',
+    data: body,
+  });
+});
+
+//PARTIAL PRODUCT  UPTADE
+router.patch('/:id', (req, res) => {
+  const { id } = req.params;
+  const body = req.body;
+  res.json({
+    message: 'product Updated',
+    data: body,
+    id,
+  });
+});
+
+//DELETE PRODUCT
+router.delete('/:id', (req, res) => {
+  const { id } = req.params;
+  res.json({
+    message: 'product Deleted',
+    id,
   });
 });
 
