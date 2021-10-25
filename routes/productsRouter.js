@@ -8,49 +8,46 @@ const service = new ProductsService();
 //esto viene después de la ruta principal
 
 //READ PRODUCTS
-router.get('/', (req, res) => {
-  const products = service.find();
+router.get('/', async (req, res) => {
+  const products = await service.find();
   res.status(200).json(products);
 });
 
 //READ PRODUCT
-router.get('/:id', (req, res) => {
+router.get('/:id', async (req, res) => {
   const { id } = req.params;
-  const product = service.findOne(id);
+  const product = await service.findOne(id);
   res.status(200).json(product);
 });
 
 //CREATE PRODUCT
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   const body = req.body;
-  const response = service.create(body);
-  res.status(201).json({
-    response,
-  });
+  const response = await service.create(body);
+  res.status(201).json(response);
 });
 
 //PARTIAL PRODUCT  UPTADE
-router.patch('/:id', (req, res) => {
-  const { id } = req.params;
-  const { name, price, image } = req.body;
-  const updateProduct = service.update(id, { name, price, image });
-  if (updateProduct) {
+router.patch('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, price, image } = req.body;
+    const updateProduct = await service.update(id, { name, price, image });
     res.json({
-      message: 'product Updated',
-      data: req.body,
-      id,
+      message: 'Product updated',
+      updateProduct,
     });
-  } else {
-    res.status(501).json({
-      message: 'Internal Error',
+  } catch (error) {
+    res.status(404).json({
+      message: 'Product not found',
     });
   }
 });
 
 //DELETE PRODUCT
-router.delete('/:id', (req, res) => {
+router.delete('/:id', async (req, res) => {
   const { id } = req.params;
-  const response = service.delete(id);
+  const response = await service.delete(id);
   if (response) {
     res.status(201).json({
       message: 'product Deleted',

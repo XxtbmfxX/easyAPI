@@ -6,7 +6,7 @@ class ProductsService {
     this.generate();
   }
 
-  generate() {
+  async generate() {
     const limit = 5;
     for (let index = 0; index < limit; index++) {
       this.products.push({
@@ -18,20 +18,31 @@ class ProductsService {
     }
   }
 
-  create(data = {}) {
-    this.products.push(data);
-    return `${data.id} has been created `;
+  async create(data = {}) {
+    const newProduct = {
+      id: faker.datatype.uuid(),
+      ...data,
+    };
+    this.products.push(newProduct);
+    return {
+      id: newProduct.id,
+      message: 'Product has been created',
+    };
   }
 
-  find() {
-    return this.products;
+  async find() {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve(this.products);
+      }, 3000);
+    });
   }
 
-  findOne(id) {
+  async findOne(id) {
     return this.products.find((item) => item.id === id);
   }
 
-  update(id, changes = {}) {
+  async update(id, changes = {}) {
     const product = this.products.find((item) => item.id === id);
     const idx = this.products.findIndex((prod) => prod.id === id);
     if (product) {
@@ -42,10 +53,12 @@ class ProductsService {
         image: changes.image || product.image,
       };
       return product;
+    } else {
+      throw new Error('product not found');
     }
   }
 
-  delete(id) {
+  async delete(id) {
     //copy of arraay uwu
     const product = { ...this.products.find((prod) => prod) };
     if (product) {
