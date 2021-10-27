@@ -9,7 +9,7 @@ import {
 } from './middlewares/errorHandler.js';
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 //BODY PARSERS
 app.use(express.json());
@@ -18,7 +18,7 @@ app.use(express.json());
 const whitelist = ['http://127.0.0.1:5500', 'http://mydomain.co'];
 const options = {
   origin: (origin, callback) => {
-    if (whitelist.includes(origin)) {
+    if (whitelist.includes(origin) || !origin) {
       callback(null, true);
     } else {
       callback(new Error('no permitido'));
