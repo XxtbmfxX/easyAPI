@@ -1,6 +1,11 @@
 import express from 'express';
-import faker from 'faker';
 import ProductsService from '../services/products.services.js';
+import { validatorHandler } from '../middlewares/validatorHandler.js';
+import {
+  createProductSchema,
+  updateProductSchema,
+  getProductSchema,
+} from '../schemas/productsSchemas.js ';
 
 const router = express.Router();
 const service = new ProductsService();
@@ -14,35 +19,53 @@ router.get('/', async (req, res) => {
 });
 
 //READ PRODUCT
-router.get('/:id', async (req, res) => {
-  const { id } = req.params;
-  const product = await service.findOne(id);
-  res.status(200).json(product);
-});
+router.get(
+  '/:id',
+  validatorHandler(getProductSchema, 'params'),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const product = await service.findOne(id);
+      res
+        .status(200)
+        .json(product ? product : { message: 'Product not found', id: id });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 //CREATE PRODUCT
-router.post('/', async (req, res) => {
-  const body = req.body;
-  const response = await service.create(body);
-  res.status(201).json(response);
-});
+router.post(
+  '/',
+  validatorHandler(createProductSchema, 'body'),
+
+  async (req, res) => {
+    const body = req.body;
+    const response = await service.create(body);
+    res.status(201).json(response);
+  }
+);
 
 //PARTIAL PRODUCT  UPTADE
-router.patch('/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { name, price, image } = req.body;
-    const updateProduct = await service.update(id, { name, price, image });
-    res.json({
-      message: 'Product updated',
-      updateProduct,
-    });
-  } catch (error) {
-    res.status(404).json({
-      message: 'Product not found',
-    });
+router.patch(
+  '/:id',
+  validatorHandler(getProductSchema, 'params'),
+  validatorHandler(updateProductSchema, 'body'),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const { name, price, image } = req.body;
+      const updateProduct = await service.update(id, { name, price, image });
+      res.json({
+        message: 'Product updated',
+        updateProduct,
+      });
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 //DELETE PRODUCT
 router.delete('/:id', async (req, res) => {
